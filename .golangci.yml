@@ -1,0 +1,53 @@
+version: '2'
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/2Delight/mlist-backend
+  exclusions:
+    paths:
+      - ".*mocks.*"
+linters:
+  default: all
+  disable:
+    - depguard
+    - err113
+    - exhaustruct
+    - funcorder
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - godox
+    - inamedparam
+    - interfacebloat
+    - ireturn
+    - mnd
+    - nlreturn
+    - noinlineerr
+    - nolintlint
+    - nonamedreturns
+    - tagliatelle
+    - testifylint
+    - testpackage
+    - usetesting
+    - varnamelen
+    - wrapcheck
+    - wsl
+    - wsl_v5
+    - unused
+  exclusions:
+    paths:
+      - ".*mocks.*"
+    rules:
+      - text: 'should have a package comment'
+        linters: [ revive ]
+      - text: 'exported \S+ \S+ should have comment( \(or a comment on this block\))? or be unexported'
+        linters: [ revive ]
+      - path: '_test\.go'
+        linters:
+          - goconst
+          - gosec
