@@ -18,7 +18,7 @@ jobs:
       - name: Log in Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: olegdayo
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Set up Docker BuildX
@@ -28,7 +28,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/mlist-backend
+          images: olegdayo/mlist-backend
 
       - name: Build and Push Latest
         uses: docker/build-push-action@v6
@@ -36,7 +36,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/mlist-backend:${{ github.sha }}
+          tags: olegdayo/mlist-backend:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and Push Tag
@@ -46,5 +46,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/mlist-backend:${{ github.ref }}
+          tags: olegdayo/mlist-backend:${{ github.ref }}
           labels: ${{ steps.meta.outputs.labels }}
