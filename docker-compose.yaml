@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  mlist-backend:
+    command: ['/app/config.yaml']
+    image: olegdayo/mlist-backend
+    ports:
+      - '8080:8080'
+    volumes:
+      - './config:config.yaml:/app/config.yaml:ro'
