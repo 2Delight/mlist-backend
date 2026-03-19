@@ -1,6 +1,6 @@
 module github.com/2Delight/mlist-backend
 
-go 1.25.0
+go 1.26.1
 
 require (
 	github.com/samber/slog-multi v1.7.1
