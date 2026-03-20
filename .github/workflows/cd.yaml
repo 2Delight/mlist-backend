@@ -31,7 +31,7 @@ jobs:
           images: olegdayo/mlist-backend
 
       - name: Build and Push Latest
-        if: startsWith(github.ref, 'refs/master')
+        if: startsWith(github.ref, 'refs/heads/master')
         uses: docker/build-push-action@v6
         with:
           context: .
