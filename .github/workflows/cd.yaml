@@ -31,6 +31,7 @@ jobs:
           images: olegdayo/mlist-backend
 
       - name: Build and Push Latest
+        if: startsWith(github.ref, 'refs/master')
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -39,6 +40,11 @@ jobs:
           tags: olegdayo/mlist-backend:latest
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Get version  
+        if: startsWith(github.ref, 'refs/tags')
+        id: get_version  
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
       - name: Build and Push Tag
         if: startsWith(github.ref, 'refs/tags')
         uses: docker/build-push-action@v6
@@ -46,5 +52,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: olegdayo/mlist-backend:${{ github.ref }}
+          tags: olegdayo/mlist-backend:${{ steps.get_version.outputs.VERSION }}
           labels: ${{ steps.meta.outputs.labels }}
