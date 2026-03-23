@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXIST mlist.models (
+CREATE TABLE IF NOT EXISTS mlist.models (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL
     -- version 
 );

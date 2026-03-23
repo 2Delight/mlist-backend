@@ -6,5 +6,6 @@ RUN make build
 
 FROM alpine:latest AS runner
 WORKDIR /app
-COPY --from=builder /app/bin/mlist-backend ./bin/mlist-backend
-ENTRYPOINT ["./bin/mlist-backend"]
+COPY --from=builder /app/bin/mlist-backend ./mlist-backend
+COPY --from=builder /app/migrations ./migrations
+ENTRYPOINT ["./mlist-backend"]

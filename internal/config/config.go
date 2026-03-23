@@ -34,7 +34,13 @@ func (db DB) GetDBURL() string {
 }
 
 type Config struct {
-	Port uint16 `yaml:"port"`
+	DB     `yaml:"db"`
+	Server struct {
+		Port uint16 `yaml:"port"`
+	} `yaml:"server"`
+	Metrics struct {
+		Port uint16 `yaml:"port"`
+	} `yaml:"metrics"`
 }
 
 func Parse(path string) (Config, error) {

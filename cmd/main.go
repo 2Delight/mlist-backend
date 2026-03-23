@@ -14,6 +14,10 @@ func main() {
 		panic(err)
 	}
 
-	app := app.New(conf)
+	app, err := app.New(conf)
+	if err != nil {
+		panic(err)
+	}
+
 	panic(app.Start())
 }

@@ -5,3 +5,11 @@ build:
 .PHONY: test
 test:
 	go test `go list ./...`
+
+.PHONY: compose
+compose:
+	docker compose up --build -d
+
+.PHONY: decompose
+decompose:
+	docker compose down
