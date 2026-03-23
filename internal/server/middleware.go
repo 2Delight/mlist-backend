@@ -3,6 +3,10 @@ package server
 import (
 	"context"
 	"net/http"
+	"time"
+
+	"github.com/2Delight/mlist-backend/internal/logger"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type middleware = func(http.Handler) http.Handler
@@ -27,11 +31,27 @@ func addTimeout(handler http.Handler) http.Handler {
 	)
 }
 
-// func addLogging(handler http.Handler) http.Handler {
-// 	return http.HandlerFunc(
-// 		func(w http.ResponseWriter, r *http.Request) {
-// 			logger.Info(r.Context(), "got request", "request", r)
-// 			handler.ServeHTTP(w, r)
-// 		},
-// 	)
-// }
+func addLogging(handler http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			logger.Info(r.Context(), "got request", "request", r)
+			handler.ServeHTTP(w, r)
+		},
+	)
+}
+
+func addMetrics(handler http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			RequestCounter.With(prometheus.Labels{
+				operationNameLabel: r.RequestURI,
+			}).Inc()
+			startTime := time.Now()
+			handler.ServeHTTP(w, r)
+			finishTime := time.Now()
+			Latency.With(prometheus.Labels{
+				operationNameLabel: r.RequestURI,
+			}).Observe(finishTime.Sub(startTime).Seconds())
+		},
+	)
+}

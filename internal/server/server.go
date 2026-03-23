@@ -30,7 +30,8 @@ func (s *Server) setRouter() *http.ServeMux {
 	mux.Handle("GET /ping", wrapHandlerFunc(
 		s.pingHandler,
 		addTimeout,
-		// addLogging,
+		addMetrics,
+		addLogging,
 	))
 	return mux
 }

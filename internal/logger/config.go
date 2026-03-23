@@ -10,5 +10,5 @@ const (
 )
 
 type Config struct {
-	Mode string `yaml:"mode"`
+	Level string `yaml:"level"`
 }

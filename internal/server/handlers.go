@@ -8,12 +8,8 @@ import (
 )
 
 func (s *Server) pingHandler(w http.ResponseWriter, r *http.Request) {
-	const operationName = "ping"
-	RequestCounter.With(prometheus.Labels{
-		operationNameLabel: operationName,
-	}).Inc()
 	ResponseCounter.With(prometheus.Labels{
-		operationNameLabel: operationName,
+		operationNameLabel: r.RequestURI,
 		statusCodeLabel:    strconv.Itoa(http.StatusOK),
 	}).Inc()
 	w.WriteHeader(http.StatusOK)

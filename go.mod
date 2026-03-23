@@ -7,7 +7,6 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/samber/slog-multi v1.7.1
-	go.opentelemetry.io/contrib/bridges/otelslog v0.17.0
 	go.opentelemetry.io/otel v1.42.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.18.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutlog v0.18.0

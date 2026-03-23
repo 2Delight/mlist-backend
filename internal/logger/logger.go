@@ -5,15 +5,13 @@ import (
 	"os"
 
 	slogmulti "github.com/samber/slog-multi"
-	"go.opentelemetry.io/contrib/bridges/otelslog"
-	"go.opentelemetry.io/otel/log/global"
 )
 
 var logger *slog.Logger
 
-func setup(c Config) error {
+func Setup(c Config) {
 	var level slog.Level
-	switch c.Mode {
+	switch c.Level {
 	case LevelDebug:
 		level = slog.LevelDebug
 	case LevelInfo:
@@ -31,9 +29,7 @@ func setup(c Config) error {
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 				Level: level,
 			}),
-			otelslog.NewHandler("otel", otelslog.WithLoggerProvider(global.GetLoggerProvider())),
+			// otelslog.NewHandler("otel", otelslog.WithLoggerProvider(global.GetLoggerProvider())),
 		),
 	)
-
-	return nil
 }

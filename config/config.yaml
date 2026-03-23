@@ -13,3 +13,6 @@ db:
   database: "db"
   ssl: "disable"
   migrations_path: file://migrations
+
+logger:
+  level: debug

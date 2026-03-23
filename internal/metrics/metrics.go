@@ -17,6 +17,7 @@ func SetupMetrics(port uint16) {
 		// collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 		server.RequestCounter,
 		server.ResponseCounter,
+		server.Latency,
 	)
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	go http.ListenAndServe(fmt.Sprintf(":%d", port), nil)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/2Delight/mlist-backend/internal/logger"
 	"gopkg.in/yaml.v3"
 )
 
@@ -41,6 +42,7 @@ type Config struct {
 	Metrics struct {
 		Port uint16 `yaml:"port"`
 	} `yaml:"metrics"`
+	Logger logger.Config
 }
 
 func Parse(path string) (Config, error) {
