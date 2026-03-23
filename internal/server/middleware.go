@@ -47,11 +47,13 @@ func addMetrics(handler http.Handler) http.Handler {
 				operationNameLabel: r.RequestURI,
 			}).Inc()
 			startTime := time.Now()
+			defer func() {
+				finishTime := time.Now()
+				Latency.With(prometheus.Labels{
+					operationNameLabel: r.RequestURI,
+				}).Observe(finishTime.Sub(startTime).Seconds())
+			}()
 			handler.ServeHTTP(w, r)
-			finishTime := time.Now()
-			Latency.With(prometheus.Labels{
-				operationNameLabel: r.RequestURI,
-			}).Observe(finishTime.Sub(startTime).Seconds())
 		},
 	)
 }
