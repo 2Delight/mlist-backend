@@ -34,7 +34,7 @@ func addTimeout(handler http.Handler) http.Handler {
 func addLogging(handler http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			logger.Info(r.Context(), "got request", "request", r)
+			logger.Info(r.Context(), "got request", "request", r.RequestURI)
 			handler.ServeHTTP(w, r)
 		},
 	)
