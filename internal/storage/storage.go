@@ -90,3 +90,21 @@ func (s Storage) DeleteModel(ctx context.Context, modelID int) error {
 	_, err := s.db.ExecContext(ctx, q, modelID)
 	return err
 }
+
+func (s Storage) LookupModel(ctx context.Context, repositry string, version string) (bool, error) {
+	q := `
+		SELECT
+			id,
+			name
+		FROM mlist.models
+	`
+	_, err := s.db.QueryContext(ctx, q)
+	switch err {
+	case nil:
+		return true, nil
+	case sql.ErrNoRows:
+		return false, nil
+	default:
+		return false, err
+	}
+}
