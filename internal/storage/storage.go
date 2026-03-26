@@ -36,7 +36,9 @@ func (s Storage) GetModels(ctx context.Context) ([]Model, error) {
 	q := `
 		SELECT
 			id,
-			name
+			name,
+			repository,
+			version
 		FROM mlist.models
 	`
 	rows, err := s.db.QueryContext(ctx, q)
@@ -56,9 +58,13 @@ func (s Storage) GetModels(ctx context.Context) ([]Model, error) {
 func (s Storage) CreateModel(ctx context.Context, model Model) (Model, error) {
 	q := `
 		INSERT INTO mlist.models (
-			name
+			name,
+			repository,
+			version
 		) VALUES (
-		 	$1
+		 	$1,
+			$2,
+			$3
 		) RETURNING
 		 	id
 	`
@@ -75,10 +81,12 @@ func (s Storage) CreateModel(ctx context.Context, model Model) (Model, error) {
 func (s Storage) UpdateModel(ctx context.Context, model Model) error {
 	q := `
         UPDATE mlist.models
-        	SET name = $1
-        WHERE id = $2
+        	SET name = $1,
+				repository = $2,
+				version = $3
+        WHERE id = $4
     `
-	_, err := s.db.ExecContext(ctx, q, model.Name, model.ID)
+	_, err := s.db.ExecContext(ctx, q, model.Name, model.Repository, model.Version, model.ID)
 	return err
 }
 
@@ -94,9 +102,10 @@ func (s Storage) DeleteModel(ctx context.Context, modelID int) error {
 func (s Storage) LookupModel(ctx context.Context, repositry string, version string) (bool, error) {
 	q := `
 		SELECT
-			id,
-			name
+			1,
 		FROM mlist.models
+		WHERE repository = $1
+			AND version = $2
 	`
 	_, err := s.db.QueryContext(ctx, q)
 	switch err {
