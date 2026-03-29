@@ -1,1 +1,1 @@
-DROP INDEX IF EXISTS mlist.unique_modes;
+DROP INDEX IF EXISTS mlist_unique_modes;

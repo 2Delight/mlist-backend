@@ -1,1 +1,1 @@
-CREATE UNIQUE INDEX IF NOT EXISTS unique_modes ON mlist.models(repository, version);
+CREATE UNIQUE INDEX IF NOT EXISTS mlist_unique_modes ON mlist.models(repository, version);
