@@ -5,6 +5,7 @@ go 1.26.1
 require (
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/jmoiron/sqlx v1.4.0
+	github.com/olegdayo/omniconv v0.1.4
 	github.com/prometheus/client_golang v1.23.2
 	github.com/samber/slog-multi v1.7.1
 	go.opentelemetry.io/otel v1.42.0

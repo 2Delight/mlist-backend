@@ -78,16 +78,26 @@ func (s Storage) CreateModel(ctx context.Context, model Model) (Model, error) {
 	return model, nil
 }
 
-func (s Storage) UpdateModel(ctx context.Context, model Model) error {
+func (s Storage) UpdateModel(ctx context.Context, modelID int, model Model) (Model, error) {
 	q := `
         UPDATE mlist.models
         	SET name = $1,
 				repository = $2,
 				version = $3
         WHERE id = $4
+		RETURNING
+			id,
+			name,
+			repository,
+			version
     `
-	_, err := s.db.ExecContext(ctx, q, model.Name, model.Repository, model.Version, model.ID)
-	return err
+	err := s.db.QueryRowContext(ctx, q, model.Name, model.Repository, model.Version, modelID).
+		Scan(&model.ID, &model.Name, &model.Repository, &model.Version)
+	if err != nil {
+		return Model{}, err
+	}
+
+	return model, nil
 }
 
 func (s Storage) DeleteModel(ctx context.Context, modelID int) error {
@@ -96,7 +106,12 @@ func (s Storage) DeleteModel(ctx context.Context, modelID int) error {
         WHERE id = $1
     `
 	_, err := s.db.ExecContext(ctx, q, modelID)
-	return err
+	switch err {
+	case sql.ErrNoRows:
+		return nil
+	default:
+		return err
+	}
 }
 
 func (s Storage) LookupModel(ctx context.Context, repositry string, version string) (bool, error) {
