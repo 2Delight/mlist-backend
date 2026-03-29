@@ -21,8 +21,6 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: db
       PGDATA: "/var/lib/postgresql/data/pgdata"
-    volumes:
-      - db-data:/var/lib/postgresql/data
     restart: unless-stopped
     deploy:
       resources:
@@ -35,6 +33,3 @@ services:
       timeout: 5s
       retries: 100
       start_period: 10s
-
-volumes:
-  db-data:
