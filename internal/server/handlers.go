@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	urlQueryModelIDKey    = "model_id"
+	urlQueryModelIDKey    = "id"
 	urlQueryRepositoryKey = "repository"
 	urlQueryVersionKey    = "version"
 	errTemplate           = "{\"error\":\"%s\"}"
@@ -38,7 +38,7 @@ func (s *Server) getModelsHandler(w http.ResponseWriter, r *http.Request) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		logger.Error(r.Context(), "failed to marshal models", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -49,7 +49,7 @@ func (s *Server) createModelHandler(w http.ResponseWriter, r *http.Request) {
 	reqBytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		logger.Error(r.Context(), "failed to read body", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -57,21 +57,21 @@ func (s *Server) createModelHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(reqBytes, &reqModel)
 	if err != nil {
 		logger.Error(r.Context(), "failed to unmarshal body", "error", err)
-		writeResponse(r, w, http.StatusBadRequest, []byte(err.Error()))
+		writeResponse(r, w, http.StatusBadRequest, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
 	respModel, err := s.modelsProvider.CreateModel(r.Context(), models.Model(reqModel))
 	if err != nil {
 		logger.Error(r.Context(), "failed to create model", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
 	bytes, err := json.Marshal(models.Model(respModel))
 	if err != nil {
 		logger.Error(r.Context(), "failed to marshal model", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -82,7 +82,7 @@ func (s *Server) updateModelHandler(w http.ResponseWriter, r *http.Request) {
 	reqBytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		logger.Error(r.Context(), "failed to read body", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -90,7 +90,7 @@ func (s *Server) updateModelHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(reqBytes, &reqModel)
 	if err != nil {
 		logger.Error(r.Context(), "failed to unmarshal body", "error", err)
-		writeResponse(r, w, http.StatusBadRequest, []byte(err.Error()))
+		writeResponse(r, w, http.StatusBadRequest, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -98,7 +98,7 @@ func (s *Server) updateModelHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		logger.Error(r.Context(), "failed to parse id", "error", err)
-		writeResponse(r, w, http.StatusBadRequest, []byte(err.Error()))
+		writeResponse(r, w, http.StatusBadRequest, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -129,7 +129,7 @@ func (s *Server) deleteModelHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		logger.Error(r.Context(), "failed to parse id", "error", err)
-		writeResponse(r, w, http.StatusBadRequest, []byte(err.Error()))
+		writeResponse(r, w, http.StatusBadRequest, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -149,7 +149,7 @@ func (s *Server) lookupModelHandler(w http.ResponseWriter, r *http.Request) {
 	repository := r.URL.Query().Get(urlQueryRepositoryKey)
 	version := r.URL.Query().Get(urlQueryVersionKey)
 
-	_, err := s.modelsProvider.LookupModel(r.Context(), repository, version)
+	err := s.modelsProvider.LookupModel(r.Context(), repository, version)
 	switch err {
 	case nil:
 		writeResponse(r, w, http.StatusOK, []byte("got model"))

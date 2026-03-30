@@ -69,7 +69,7 @@ func (s Storage) CreateModel(ctx context.Context, model Model) (Model, error) {
 		 	id
 	`
 	var newID int
-	err := s.db.QueryRowContext(ctx, q, model.Name).Scan(&newID)
+	err := s.db.QueryRowContext(ctx, q, model.Name, model.Repository, model.Version).Scan(&newID)
 	if err != nil {
 		return Model{}, err
 	}
@@ -114,14 +114,14 @@ func (s Storage) DeleteModel(ctx context.Context, modelID int) error {
 	}
 }
 
-func (s Storage) LookupModel(ctx context.Context, repositry string, version string) error {
+func (s Storage) LookupModel(ctx context.Context, repository string, version string) error {
 	q := `
 		SELECT
-			1,
+			1
 		FROM mlist.models
 		WHERE repository = $1
 			AND version = $2
 	`
-	_, err := s.db.QueryContext(ctx, q)
-	return err
+	var exists int
+	return s.db.QueryRowContext(ctx, q, repository, version).Scan(&exists)
 }

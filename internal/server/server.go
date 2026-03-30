@@ -18,7 +18,7 @@ type ModelsProvider interface {
 	CreateModel(ctx context.Context, model models.Model) (models.Model, error)
 	UpdateModel(ctx context.Context, modelID int, model models.Model) (models.Model, error)
 	DeleteModel(ctx context.Context, modelID int) error
-	LookupModel(ctx context.Context, repository string, version string) (bool, error)
+	LookupModel(ctx context.Context, repository string, version string) error
 }
 
 type Server struct {
@@ -42,25 +42,31 @@ func (s *Server) setRouter() *http.ServeMux {
 		addMetrics,
 		addLogging,
 	))
-	mux.Handle("GET /models", wrapHandlerFunc(
+	mux.Handle("GET /api/models", wrapHandlerFunc(
 		s.getModelsHandler,
 		addTimeout,
 		addMetrics,
 		addLogging,
 	))
-	mux.Handle("PUT /models", wrapHandlerFunc(
+	mux.Handle("POST /api/models", wrapHandlerFunc(
+		s.createModelHandler,
+		addTimeout,
+		addMetrics,
+		addLogging,
+	))
+	mux.Handle("PUT /api/models", wrapHandlerFunc(
 		s.updateModelHandler,
 		addTimeout,
 		addMetrics,
 		addLogging,
 	))
-	mux.Handle("DELETE /models", wrapHandlerFunc(
+	mux.Handle("DELETE /api/models", wrapHandlerFunc(
 		s.deleteModelHandler,
 		addTimeout,
 		addMetrics,
 		addLogging,
 	))
-	mux.Handle("GET /lookup-model", wrapHandlerFunc(
+	mux.Handle("GET /api/models/lookup", wrapHandlerFunc(
 		s.lookupModelHandler,
 		addTimeout,
 		addMetrics,
