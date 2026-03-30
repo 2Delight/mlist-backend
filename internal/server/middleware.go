@@ -34,7 +34,7 @@ func addTimeout(handler http.Handler) http.Handler {
 func addLogging(handler http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			logger.Info(r.Context(), "got request", "request", r.RequestURI)
+			logger.Info(r.Context(), "got request", "request", r.URL.Path)
 			handler.ServeHTTP(w, r)
 		},
 	)
@@ -44,13 +44,13 @@ func addMetrics(handler http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			RequestCounter.With(prometheus.Labels{
-				operationNameLabel: r.RequestURI,
+				operationNameLabel: r.URL.Path,
 			}).Inc()
 			startTime := time.Now()
 			defer func() {
 				finishTime := time.Now()
 				Latency.With(prometheus.Labels{
-					operationNameLabel: r.RequestURI,
+					operationNameLabel: r.URL.Path,
 				}).Observe(finishTime.Sub(startTime).Seconds())
 			}()
 			handler.ServeHTTP(w, r)

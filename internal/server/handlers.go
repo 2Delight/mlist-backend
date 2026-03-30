@@ -163,7 +163,7 @@ func (s *Server) lookupModelHandler(w http.ResponseWriter, r *http.Request) {
 
 func writeResponse(r *http.Request, w http.ResponseWriter, statusCode int, message []byte) {
 	ResponseCounter.With(prometheus.Labels{
-		operationNameLabel: r.RequestURI,
+		operationNameLabel: r.URL.Path,
 		statusCodeLabel:    strconv.Itoa(statusCode),
 	}).Inc()
 	w.WriteHeader(statusCode)
