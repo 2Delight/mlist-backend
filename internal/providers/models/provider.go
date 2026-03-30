@@ -12,7 +12,7 @@ type Storage interface {
 	CreateModel(ctx context.Context, model storage.Model) (storage.Model, error)
 	UpdateModel(ctx context.Context, modelID int, model storage.Model) (storage.Model, error)
 	DeleteModel(ctx context.Context, modelID int) error
-	LookupModel(ctx context.Context, repository string, version string) (bool, error)
+	LookupModel(ctx context.Context, repository string, version string) error
 }
 
 type Provider struct {
@@ -53,10 +53,6 @@ func (p Provider) DeleteModel(ctx context.Context, modelID int) error {
 	return p.storage.DeleteModel(ctx, modelID)
 }
 
-func (p Provider) LookupModel(ctx context.Context, repository string, version string) (bool, error) {
-	resp, err := p.storage.LookupModel(ctx, repository, version)
-	if err != nil {
-		return false, err
-	}
-	return resp, nil
+func (p Provider) LookupModel(ctx context.Context, repository string, version string) error {
+	return p.storage.LookupModel(ctx, repository, version)
 }

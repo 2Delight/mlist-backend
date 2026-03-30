@@ -114,7 +114,7 @@ func (s Storage) DeleteModel(ctx context.Context, modelID int) error {
 	}
 }
 
-func (s Storage) LookupModel(ctx context.Context, repositry string, version string) (bool, error) {
+func (s Storage) LookupModel(ctx context.Context, repositry string, version string) error {
 	q := `
 		SELECT
 			1,
@@ -123,12 +123,5 @@ func (s Storage) LookupModel(ctx context.Context, repositry string, version stri
 			AND version = $2
 	`
 	_, err := s.db.QueryContext(ctx, q)
-	switch err {
-	case nil:
-		return true, nil
-	case sql.ErrNoRows:
-		return false, nil
-	default:
-		return false, err
-	}
+	return err
 }

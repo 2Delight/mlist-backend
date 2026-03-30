@@ -1,7 +1,9 @@
 package server
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -16,6 +18,8 @@ const (
 	urlQueryModelIDKey    = "model_id"
 	urlQueryRepositoryKey = "repository"
 	urlQueryVersionKey    = "version"
+	errTemplate           = "{\"error\":\"%s\"}"
+	noSuchModel           = "no such model"
 )
 
 func (s *Server) pingHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +30,7 @@ func (s *Server) getModelsHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := s.modelsProvider.GetModels(r.Context())
 	if err != nil {
 		logger.Error(r.Context(), "failed to get models", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte("pong"))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -66,12 +70,12 @@ func (s *Server) createModelHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(models.Model(respModel))
 	if err != nil {
-		logger.Error(r.Context(), "failed to marshal models", "error", err)
+		logger.Error(r.Context(), "failed to marshal model", "error", err)
 		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
 		return
 	}
 
-	writeResponse(r, w, http.StatusOK, bytes)
+	writeResponse(r, w, http.StatusCreated, bytes)
 }
 
 func (s *Server) updateModelHandler(w http.ResponseWriter, r *http.Request) {
@@ -90,19 +94,30 @@ func (s *Server) updateModelHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.URL.Query()
-
-	respModel, err := s.modelsProvider.CreateModel(r.Context(), models.Model(reqModel))
+	idStr := r.URL.Query().Get(urlQueryModelIDKey)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		logger.Error(r.Context(), "failed to parse id", "error", err)
+		writeResponse(r, w, http.StatusBadRequest, []byte(err.Error()))
+		return
+	}
+
+	respModel, err := s.modelsProvider.UpdateModel(r.Context(), id, models.Model(reqModel))
+	switch err {
+	case nil:
+	case sql.ErrNoRows:
+		writeResponse(r, w, http.StatusNotFound, []byte(fmt.Sprintf(errTemplate, noSuchModel)))
+		return
+	default:
 		logger.Error(r.Context(), "failed to create model", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
 	bytes, err := json.Marshal(models.Model(respModel))
 	if err != nil {
-		logger.Error(r.Context(), "failed to marshal models", "error", err)
-		writeResponse(r, w, http.StatusInternalServerError, []byte(err.Error()))
+		logger.Error(r.Context(), "failed to marshal model", "error", err)
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
 		return
 	}
 
@@ -110,9 +125,40 @@ func (s *Server) updateModelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) deleteModelHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get(urlQueryModelIDKey)
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logger.Error(r.Context(), "failed to parse id", "error", err)
+		writeResponse(r, w, http.StatusBadRequest, []byte(err.Error()))
+		return
+	}
+
+	err = s.modelsProvider.DeleteModel(r.Context(), id)
+	switch err {
+	case nil:
+		fallthrough
+	case sql.ErrNoRows:
+		writeResponse(r, w, http.StatusNoContent, nil)
+	default:
+		logger.Error(r.Context(), "failed to create model", "error", err)
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
+	}
 }
 
 func (s *Server) lookupModelHandler(w http.ResponseWriter, r *http.Request) {
+	repository := r.URL.Query().Get(urlQueryRepositoryKey)
+	version := r.URL.Query().Get(urlQueryVersionKey)
+
+	_, err := s.modelsProvider.LookupModel(r.Context(), repository, version)
+	switch err {
+	case nil:
+		writeResponse(r, w, http.StatusOK, []byte("got model"))
+	case sql.ErrNoRows:
+		writeResponse(r, w, http.StatusNotFound, []byte(fmt.Sprintf(errTemplate, noSuchModel)))
+	default:
+		logger.Error(r.Context(), "failed to lookup model", "error", err)
+		writeResponse(r, w, http.StatusInternalServerError, []byte(fmt.Sprintf(errTemplate, err.Error())))
+	}
 }
 
 func writeResponse(r *http.Request, w http.ResponseWriter, statusCode int, message []byte) {
@@ -121,8 +167,10 @@ func writeResponse(r *http.Request, w http.ResponseWriter, statusCode int, messa
 		statusCodeLabel:    strconv.Itoa(statusCode),
 	}).Inc()
 	w.WriteHeader(statusCode)
-	_, err := w.Write(message)
-	if err != nil {
-		logger.Error(r.Context(), "failed to write response", "error", err)
+	if len(message) > 0 {
+		_, err := w.Write(message)
+		if err != nil {
+			logger.Error(r.Context(), "failed to write response", "error", err)
+		}
 	}
 }
