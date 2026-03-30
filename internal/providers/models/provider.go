@@ -7,6 +7,7 @@ import (
 	"github.com/olegdayo/omniconv"
 )
 
+//go:generate mockery --name --case=snake --with-expecter --exported
 type Storage interface {
 	GetModels(ctx context.Context) ([]storage.Model, error)
 	CreateModel(ctx context.Context, model storage.Model) (storage.Model, error)
