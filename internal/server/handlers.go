@@ -152,7 +152,7 @@ func (s *Server) lookupModelHandler(w http.ResponseWriter, r *http.Request) {
 	err := s.modelsProvider.LookupModel(r.Context(), repository, version)
 	switch err {
 	case nil:
-		writeResponse(r, w, http.StatusOK, []byte("got model"))
+		writeResponse(r, w, http.StatusOK, []byte(`{"error":null}`))
 	case sql.ErrNoRows:
 		writeResponse(r, w, http.StatusNotFound, []byte(fmt.Sprintf(errTemplate, noSuchModel)))
 	default:
